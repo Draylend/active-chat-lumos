@@ -230,6 +230,8 @@ components/
         └── icon.png
 ```
 
+The registry server should then broadcast index.js at `/components/mcq`, and `header.svg` at `/components/mcq/static/header.svg`.
+
 
 ## Tech stack
 
