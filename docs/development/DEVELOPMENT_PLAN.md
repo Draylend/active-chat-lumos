@@ -26,6 +26,49 @@ Given the differing needs mentioned above, and the many more that have gone unme
 - **Uniform Chat Logs**: All student interactions within an activity (clicks, submissions, code entries) must be transformed back into plain-text representations to be stored within the chat history, ensuring data auditability and replayability.
 - **Framework Agnostic**: The system should utilize Web Components (Custom Elements) to ensure that activities can be embedded into any web environment regardless of the host's tech stack.
 
+
+## Overall project structure
+
+```
+active-chat/
+├── active-chat-framework/     # Front-end core library
+│   ├── src/
+│   │   ├── components/        # Internal UI components (active-chat, message)
+│   │   ├── parser/            # XML/Markdown parsing logic
+│   │   ├── registry-client/   # Logic to fetch and load external components
+│   │   └── index.js           # Framework entry point
+│   └── styles/                # Global themes and CSS variables
+│
+├── activity-server/           # Go-based component registry
+│   ├── cmd/
+│   │   └── registry/
+│   │       └── main.go        # Server entry point (handles --component_dir)
+│   ├── internal/
+│   │   ├── server/            # HTTP handlers and routing
+│   │   └── middleware/        # CORS and logging
+│   ├── go.mod
+│   └── go.sum
+│
+├── component-library/         # Individual activity web components
+│   ├── mcq/                   # Sub-directory named after the component
+│   │   ├── index.js           # Main component entry point
+│   │   └── static/            # Component-specific static assets
+│   │       └── icon.svg
+│   ├── coding-sandbox/
+│   │   ├── index.js
+│   │   └── static/
+│   │       └── runner.wasm
+│   └── video-player/
+│       ├── index.js
+│       └── static/
+│           └── thumbnail.jpg
+│
+├── docs/                      # Project documentation and diagrams
+│   ├── DEVELOPMENT_PLAN.md
+│   └── API_SPEC.md
+└── README.md
+```
+
 # Specification
 
 This section outlines the specifications for the front- and back-end portions of the framework.
@@ -153,12 +196,12 @@ document.querySelectorAll(`chat-interaction`).forEach(interaction => {
 The `accept` method is an example of the [Visitor Pattern](https://en.wikipedia.org/wiki/Visitor_pattern).
 
 
-### Back End Activity Registry
+# Back End Activity Registry
 
 The back end is responsible for serving the web components to the front end.
 Thus is it a *component registry*. It should have an endpoint at `/components`
 that responds to `GET` requests either with a web component, if the component exists,
-or with a 404 (Not Found).
+or with a 404 (Not Found). For example, `/components/mcq` should respond with the `<mcq>` component.
 
 The web server should be configurable so as to make the addition of new components easy.
 The server, for example, could be started like
@@ -168,8 +211,29 @@ component-registry --component_dir ./components --port 5000
 ```
 
 where `./components` contains files like `mcq.js`, which contain the components to be served.
-This maximizes configurability.
+This maximizes configurability. Each component should be in a sub-folder of the components directory that bears the name of the component, like `mcq`.
+Inside the directory should be a main component file, `index.js`, alongside a directory called static, which may contain any static files available to the component. Here is an example components directory:
 
+```
+components/
+├── mcq/
+│   ├── index.js        # Main Web Component definition/entry point
+│   └── static/           # Asset folder for this specific component
+│       └── header.svg
+├── coding-sandbox/
+│   ├── index.js
+│   └── static/
+│       └── runner.wasm   # Example of a complex asset
+└── video-player/
+    ├── index.js
+    └── static/
+        └── icon.png
+```
+
+
+## Tech stack
+
+Use Go for the web server. It is a performant language designed for the development of web servers.
 
 # Milestones
 
