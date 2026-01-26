@@ -39,7 +39,7 @@ active-chat/
 │   │   └── index.js           # Framework entry point
 │   └── styles/                # Global themes and CSS variables
 │
-├── activity-server/           # Go-based component registry
+├── component-server/          # Go-based component registry
 │   ├── cmd/
 │   │   └── registry/
 │   │       └── main.go        # Server entry point (handles --component-dir)
@@ -207,7 +207,7 @@ The web server should be configurable so as to make the addition of new componen
 The server, for example, could be started like
 
 ```bash
-component-registry --component-dir ./components --port 5000
+component-server --component-dir ./components --port 5000
 ```
 
 where `./components` contains files like `mcq.js`, which contain the components to be served.
