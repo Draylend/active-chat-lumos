@@ -27,7 +27,9 @@ Given the differing needs mentioned above, and the many more that have gone unme
 - **Framework Agnostic**: The system should utilize Web Components (Custom Elements) to ensure that activities can be embedded into any web environment regardless of the host's tech stack.
 
 
-## Overall project structure
+## Overall Project Structure
+
+The following is not exactly what your folder structure needs to be, but it is an indication of the general organization of the project to be developed.
 
 ```
 active-chat/
