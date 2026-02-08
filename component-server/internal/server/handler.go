@@ -28,6 +28,8 @@ func GetActivity(componentDir string) http.HandlerFunc {
 			return
 		}
 
+		// also need to get to static/ dir content
+
 		resp := Response{
 			Id:      id,
 			Content: string(content),

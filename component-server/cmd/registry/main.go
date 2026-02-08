@@ -1,6 +1,7 @@
 package main
 
 import (
+	"component-server/internal/middleware"
 	"component-server/internal/server"
 	"flag"
 	"fmt"
@@ -13,10 +14,10 @@ func main() {
 	flag.Parse()
 
 	mux := http.NewServeMux()
-
 	mux.HandleFunc("/components/{id}", server.GetActivity(*componentLibrary))
 
-	addr := fmt.Sprintf(":%d", *port)
+	wrappedMux := middleware.Cors(mux)
 
-	http.ListenAndServe(addr, mux)
+	addr := fmt.Sprintf(":%d", *port)
+	http.ListenAndServe(addr, wrappedMux)
 }
