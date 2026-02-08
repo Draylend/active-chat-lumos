@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -25,10 +26,11 @@ func GetActivity(componentDir string) http.HandlerFunc {
 		// check if file exists
 		if err != nil {
 			http.Error(w, "Component not found", http.StatusNotFound)
+			log.Printf("Failed to serve %s component. Component not found\n", id)
 			return
 		}
 
-		// also need to get to static/ dir content
+		// also need to get to static/ dir content (use http.FileServer?)
 
 		resp := Response{
 			Id:      id,
@@ -38,6 +40,7 @@ func GetActivity(componentDir string) http.HandlerFunc {
 		// encode and return json
 		e := json.NewEncoder(w)
 		e.Encode(resp)
+		log.Printf("Found and served %s component\n", id)
 	}
 }
 

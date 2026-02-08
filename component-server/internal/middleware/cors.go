@@ -1,6 +1,9 @@
 package middleware
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+)
 
 func Cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -15,6 +18,8 @@ func Cors(next http.Handler) http.Handler {
 
 		if req.Method != http.MethodGet {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			log.Printf("%s method not allowed\n", req.Method)
+			return
 		}
 
 		next.ServeHTTP(w, req)
