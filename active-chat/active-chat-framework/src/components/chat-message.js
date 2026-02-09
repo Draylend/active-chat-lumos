@@ -7,22 +7,41 @@ class ChatMessage extends HTMLElement {
     }
 
     connectedCallback() {
+        const isUser = this.getAttribute("is-user") === "true"; 
+        const className = isUser ? "text-box-user" : "text-box-ai";
+
         this.shadowRoot.innerHTML = `
             <style>
-                .text-box {
-                    height: auto;
-                    width: auto;
-                    background: #B8B8B8;
+                .wrapper {
+                    display: flex;
+                    width: 100%;
+                }
+
+                .text-box-user {
+                    background: #FFB81C;
                     border-radius: 12px;
                     padding: 10px;
-                    text-align: center;
+                    margin-left: auto;
+                    max-width: 50%;
+                }
+
+                .text-box-ai {
+                    color: white;
+                    margin-right: auto;
+                    max-width: 70%;
                 }
             </style>
 
-            <div class="text-box">
-                <slot></slot>
+            <div class="wrapper">
+                <div class="${className}">
+                    <slot></slot>
+                </div>
             </div>
         `;
+    }
+
+    attributeChangedCallback() {
+        this.connectedCallback();
     }
 }
 
