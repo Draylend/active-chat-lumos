@@ -57,5 +57,6 @@ func ComponentHandler(componentDir string) http.Handler {
 		}
 
 		http.ServeFile(w, r, cleanPath)
+		log.Printf("Served %s component\n", componentName)
 	})
 }
