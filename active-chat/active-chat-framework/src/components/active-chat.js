@@ -2,65 +2,82 @@
 class ActiveChat extends HTMLElement {
     constructor() {
         super();
-        this.attachShadow({ mode: "open" });
-    }
+        const shadow = this.attachShadow({ mode: "open" });
 
-    connectedCallback() {
-        this.shadowRoot.innerHTML = `
-            <style>
-                :host {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    min-height: 100vh;
-                    background-color: #003DA5;
-                }            
-            
-                .chat-box {
-                    height: 80vh;
-                    width: 60vw;
-                    background: #001a46;
-                    border-radius: 12px;
-                    display: flex;
-                    padding: 15px;
-                    flex-direction: column;
-                    gap: 15px;
-                    box-sizing: border-box;
-                }
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('chat-box');
 
-                /* ---------------------------------------------------------------------- */
-                /* Make this it's own web component and import into here */
-                .text-bar {
-                    position: sticky;
-                    bottom: 0;
-                    border-radius: 20px;
-                    background: #003DA5;
-                    flex: 0 0 15%;
-                    overflow-y: auto;
-                    padding: 15px;
-                    box-sizing: border-box;
-                    box-shadow: 0 5px 10px 10px #001a46;
-                }
+        const chat = document.createElement('div');
+        chat.classList.add('messages', 'scroll-bar');
 
-                .text-bar:empty:before {
-                    content: attr(default);
-                    color: #a0b0cc;
-                }
-                /* ---------------------------------------------------------------------- */
+        const slot = document.createElement('slot');
+        chat.appendChild(slot);
 
-                /* Customize scroll bar to make it less ugly */
-                .scroll-bar {
-                    overflow-y: auto;
-                }
-            </style>
+        const textBar = document.createElement('div');
+        textBar.classList.add('text-bar')
 
-            <div class="chat-box scroll-bar">
-                <slot></slot>
+        // Forward contenteditable from host → internal div
+        const editable = this.getAttribute('contenteditable') !== 'false';
+        textBar.setAttribute('contenteditable', editable);
 
-                <!-- This is a temporary NON-working text-bar -->
-                <div class="text-bar" contenteditable="true" default="What's on your mind?" ></div>
-            </div>
+        // Expose for external access
+        this.textBar = textBar;
+
+        wrapper.append(chat, textBar);
+
+        const style = document.createElement('style');
+        style.textContent = `
+            :host {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                background-color: #003DA5;
+            }    
+
+            .chat-box {
+                height: 80vh;
+                width: 60vw;
+                background: #001a46;
+                border-radius: 12px;
+                display: flex;
+                padding: 15px;
+                flex-direction: column;
+                box-sizing: border-box;
+            }
+
+            .messages {
+                gap: 15px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Customize scroll bar to make it less ugly */
+            .scroll-bar {
+                overflow-y: auto;
+            }
+
+            /* ---------------------------------------------------------------------- */
+            /* Make this it's own web component and import into here */
+            .text-bar {
+                position: sticky;
+                bottom: 0;
+                height: full;
+                border-radius: 20px;
+                background: #003DA5;
+                padding: 15px;
+                box-sizing: border-box;
+                box-shadow: 0 5px 10px 10px #001a46;
+            }
+
+            .text-bar:empty:before {
+                content: attr(default);
+                color: #a0b0cc;
+            }
+            /* ---------------------------------------------------------------------- */
         `;
+
+        shadow.append(style, wrapper);
     }
 }
 
