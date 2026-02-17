@@ -1,47 +1,58 @@
-// Class structure for message
-class ChatMessage extends HTMLElement {
+export class ChatMessage extends HTMLElement {
     static observedAttributes = ["sender", "is-user"];
+
     constructor() {
         super();
-        const shadow = this.attachShadow({ mode: "open" });
-    }
 
-    connectedCallback() {
-        const isUser = this.getAttribute("is-user") === "true"; 
-        const className = isUser ? "text-box-user" : "text-box-ai";
+        this.attachShadow({ mode: "open" });
 
-        this.shadowRoot.innerHTML = `
-            <style>
-                .wrapper {
-                    display: flex;
-                    width: 100%;
-                }
+        this.wrapper = document.createElement("div");
+        this.wrapper.classList.add("wrapper");
 
-                .text-box-user {
-                    background: #FFB81C;
-                    border-radius: 12px;
-                    padding: 10px;
-                    margin-left: auto;
-                    max-width: 50%;
-                }
+        this.message = document.createElement("div");
 
-                .text-box-ai {
-                    color: white;
-                    margin-right: auto;
-                    max-width: 70%;
-                }
-            </style>
+        const slot = document.createElement("slot");
 
-            <div class="wrapper">
-                <div class="${className}">
-                    <slot></slot>
-                </div>
-            </div>
+        this.message.appendChild(slot);
+        this.wrapper.appendChild(this.message);
+
+        const style = document.createElement("style");
+        style.textContent = `
+            .wrapper {
+                display: flex;
+                width: 100%;
+            }
+
+            .text-box-user {
+                background: #364741;
+                border-radius: 20px;
+                padding: 15px;
+                margin-left: auto;
+                max-width: 50%;
+                margin-bottom: 20px;
+                line-height: 24px;
+                color: white;
+            }
+
+            .text-box-ai {
+                color: white;
+                margin-right: auto;
+                margin-bottom: 10px;
+                max-width: 90%;
+                line-height: 24px;
+            }
         `;
+
+        this.shadowRoot.append(style, this.wrapper);
     }
 
-    attributeChangedCallback() {
-        this.connectedCallback();
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (name === "is-user") {
+            const isUser = newValue === "true";
+            this.message.classList.add(
+                isUser ? "text-box-user" : "text-box-ai"
+            );
+        }
     }
 }
 
