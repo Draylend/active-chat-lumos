@@ -1,3 +1,5 @@
+import { loadActivityComponent } from '../registry-client/index.js' // not sure if this is the name of the file or function name (placeholders currently until client-registry is completed)
+
 export class ChatMessage extends HTMLElement {
     static observedAttributes = ["sender", "is-user"];
 
@@ -44,6 +46,18 @@ export class ChatMessage extends HTMLElement {
         `;
 
         this.shadowRoot.append(style, this.wrapper);
+    }
+
+    async addActivity(tagName) { // do we need pass attributes too? (like id="4", other data, etc)
+        const container = this.shadowRoot.querySelector('#activity-slot');
+
+        await loadActivityComponent(tagName);
+
+        const activityElement = document.createElement(tagName);
+
+        // if need to also pass attributes on, do so here
+
+        container.appendChild(activityElement);
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
