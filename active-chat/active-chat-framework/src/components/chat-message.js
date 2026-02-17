@@ -1,4 +1,4 @@
-import { loadActivityComponent } from '../registry-client/index.js' // not sure if this is the name of the file or function name (placeholders currently until client-registry is completed)
+// import { loadActivityComponent } from '../registry-client/index.js' // not sure if this is the name of the file or function name (placeholders currently until client-registry is completed)
 
 export class ChatMessage extends HTMLElement {
     static observedAttributes = ["sender", "is-user"];
@@ -42,6 +42,8 @@ export class ChatMessage extends HTMLElement {
                 margin-bottom: 10px;
                 max-width: 90%;
                 line-height: 24px;
+
+                position: relative;
             }
         `;
 
