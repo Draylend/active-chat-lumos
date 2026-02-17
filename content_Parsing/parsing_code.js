@@ -1,81 +1,87 @@
-<<<<<<< HEAD
-
-class code_parsing extends ActiveChat 
+class ParsingTreeNode
 {
-    /*steps: 
-        1) go through each and every line in active chat and find out which parts start in '<' and end in '>'
-        2) based on the parts that it starts and ends in, separate them and mark them as part of a separate variable
-        3) no need to render yet in the chatbox, but make sure that they are separate 
-
-
-        pseudocode: 
-        1. parse markdown into some intermediate format
-        2. create a function to determine which texts are parsed 
-            for every node:
-                if the node contains the tags
-                {
-                    extract the node and add it to an empty set for parsed blocks
-                }
-                else
-                {
-                    keep them within the text-block set
-                }
-        3. create a code for finding out the things that are in between
-
-    */
-    parse(chat_message)
+    constructor(type, value = null, attributes = {})
     {
-        let regular_text = " ";
-        let parsed_content = " ";
-        let inside_text = false;
-        for (let c of chat_message)
+        this.type = type;
+        this.value = value;
+        this.attributes = attributes;
+        this.children = [];
+        this.parent = null;
+    }
+
+
+    addChildNode(childNode)
+    {
+        childNode.parent = this;
+        this.children.push(childNode);
+    }
+}
+
+class code_parsing
+{
+    parse(chat_message) 
+    {
+        let root = new ParsingTreeNode("root");
+        let stack = [root];
+        let regular_text = "";
+
+        for (let i = 0; i < chat_message.length; i++) 
         {
-            if (c == '<')
+            let currentNode = stack[stack.length - 1];
+
+            if (chat_message[i] === "<") 
             {
-                inside_text == true;
-            }
-            if (c == '>')
+                if (regular_text.length > 0) 
+                {
+                    currentNode.addChildNode(new ParsingTreeNode("text", regular_text));
+                    regular_text = "";
+                }
+
+                let depth = 1;
+                let index = i + 1;
+
+                while (index < chat_message.length && depth > 0)
+                {
+                    if (chat_message[index] === "<") 
+                    {
+                        depth++;
+                    }
+                    else if (chat_message[index] === ">") 
+                    {
+                        depth--;
+                    }
+                    index++;
+                }
+
+                if (depth !== 0) 
+                {
+                    regular_text += "<";
+                    continue;
+                }
+
+                let fullTag = chat_message.substring(i, index);
+                let tagNode = new ParsingTreeNode("tag", fullTag);
+                if (fullTag.startsWith("<chat-activity") || fullTag.startsWith("<chat-interaction")) 
+                {
+                    tagNode.attributes.known = true;
+                }
+                currentNode.addChildNode(tagNode);
+                i = index - 1;
+            } 
+            else 
             {
-                inside_text = false;
-            }
-            if (inside_text)
-            {
-                parsed_content+=c;
-            }
-            else
-            {
-                regular_text += c;
+                regular_text += chat_message[i];
             }
         }
+
+        // flush any remaining regular text
+        if (regular_text.length > 0) 
+        {
+            stack[stack.length - 1].addChildNode(
+                new ParsingTreeNode("text", regular_text)
+            );
+        }
+
+        return root;
     }
-    
 }
-
-
-=======
-class code_parsing extends ActiveChat 
-{
-    /*steps: 
-        1) go through each and every line in active chat and find out which parts start in '<' and end in '>'
-        2) based on the parts that it starts and ends in, separate them and mark them as part of a separate variable
-        3) no need to render yet in the chatbox, but make sure that they are separate 
-
-
-        pseudocode: 
-        1. parse markdown into some intermediate format
-        2. create a function to determine which texts are parsed 
-            for every node:
-                if the node contains the tags
-                {
-                    extract the node and add it to an empty set for parsed blocks
-                }
-                else
-                {
-                    keep them within the text-block set
-                }
-        3. create a code for finding out the things that are in between
-
-    */
-
-}
->>>>>>> 5fcda404e23a89251c20ae7d0272b517ae39a9bb
