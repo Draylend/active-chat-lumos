@@ -1,40 +1,27 @@
-//NOT ACTUAL IMPLEMENTATION
+// MCQ Web Component
 
-class mcq extends HTMLElement {
+class MCQ extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: "open" });
-    }
 
-    connectedCallback() {
-        this.shadowRoot.innerHTML = `
-            <style>
-                :host {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    min-height: 100vh;
-                    background-color: #F0FFF3;
-                }            
-            
-                .chat-box {
-                    height: 80vh;
-                    width: 60vw;
-                    background: #EDEDED;
-                    border-radius: 12px;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-            </style>
+        this.wrapper = document.createElement("div");
+        this.wrapper.classList.add("wrapper");
 
-            <div class="chat-box">
-                <slot></slot>
-            </div>
+        const slot = document.createElement("slot");
+        this.wrapper.appendChild(slot);
+
+        const style = document.createElement("style");
+        style.textContent = `
+            .wrapper {
+                
+            }
         `;
+
+        this.shadowRoot.append(style, this.wrapper);
     }
 }
 
-// Add method to add messages
+// Add question, answer, option methods
 
-customElements.define("mcq", mcq);
+customElements.define("multiple-choice-question", MCQ);
