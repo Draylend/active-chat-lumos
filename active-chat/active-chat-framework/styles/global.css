@@ -1,10 +1,45 @@
+:root {
+    --ac-page-bg: #1f2523;
+    --ac-page-text: #ffffff;
+    --ac-font-family: Arial, sans-serif;
+
+    --ac-chat-bg: #1f2523;
+
+    --ac-textbar-bg: #364741;
+    --ac-textbar-border: #91beae;
+    --ac-placeholder-text: #a0b0cc;
+
+    --ac-user-bubble-bg: #364741;
+    --ac-user-bubble-text: #ffffff;
+
+    --ac-ai-bubble-bg: transparent;
+    --ac-ai-bubble-text: #ffffff;
+}
+
+body.light {
+    --ac-page-bg: #ffffff;
+    --ac-page-text: #111111;
+
+    --ac-chat-bg: #ffffff;
+
+    --ac-textbar-bg: #f2f2f2;
+    --ac-textbar-border: #cccccc;
+    --ac-placeholder-text: #666666;
+
+    --ac-user-bubble-bg: #e8eefc;
+    --ac-user-bubble-text: #111111;
+
+    --ac-ai-bubble-text: #111111;
+}
+
 html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    background-color: #1f2523;
+    background-color: var(--ac-page-bg);
+    color: var(--ac-page-text);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: Arial, sans-serif;
+    font-family: var(--ac-font-family);
 }
