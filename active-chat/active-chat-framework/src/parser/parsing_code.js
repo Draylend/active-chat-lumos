@@ -16,11 +16,9 @@ class ParsingTreeNode
         this.children.push(childNode);
     }
 }
-
-class code_parsing
+/*
+parse(chat_message) 
 {
-    parse(chat_message) 
-    {
         let root = new ParsingTreeNode("root");
         let stack = [root];
         let regular_text = "";
@@ -84,8 +82,7 @@ class code_parsing
 
         return root;
     }
-}
-/*
+*/
 //This is the other version of the initial code parsing code that I created that works similar to the tree structure mentioned during discussion on 02/17/26. 
 parse(chat_message)
 {
@@ -166,4 +163,4 @@ parse(chat_message)
 
     return root;
 }
-*/
+
