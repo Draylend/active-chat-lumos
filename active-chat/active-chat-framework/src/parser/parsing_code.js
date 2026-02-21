@@ -68,7 +68,7 @@ function parse(chat_message, parent = null)
 
 //Option 2: Recursion Without DOM Parser
 //maybe add section for attributes??
-parse(chat_message, node = null)
+/*parse(chat_message, node = null)
 {
     if (!node)
     {
@@ -134,6 +134,6 @@ parse(chat_message, node = null)
     }
 
     return node;
-}
+}*/
 
 
