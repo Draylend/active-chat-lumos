@@ -1,4 +1,4 @@
-// import { loadActivityComponent } from '../registry-client/index.js' // not sure if this is the name of the file or function name (placeholders currently until client-registry is completed)
+import { activity_discover } from '../registry_client/registry_client.js';
 
 export class ChatMessage extends HTMLElement {
     static observedAttributes = ["sender", "is-user"];
@@ -48,21 +48,59 @@ export class ChatMessage extends HTMLElement {
         `;
 
         this.shadowRoot.append(style, this.wrapper);
+
+        try
+        {
+            this.registryClient = new activity_discover();
+        }
+        catch
+        {
+            console.error("Failed to access registry_client");
+        }
     }
 
-    async addActivity(tagName) { // do we need pass attributes too? (like id="4", other data, etc)
-        const container = this.shadowRoot.querySelector('#activity-slot');
+    // Shadow DOM rendering
+    async addActivity() {
+        // look for <chat-activity> wrapper
+        const activityWrapper = this.querySelector('chat-activity');
 
-        await loadActivityComponent(tagName);
+        // check if message has an activity
+        if (!activityWrapper) return;
 
-        const activityElement = document.createElement(tagName);
+        // check if there is actually an activity to render
+        const activity = activityWrapper.firstElementChild;
+        if (!activity) return;
 
-        // if need to also pass attributes on, do so here
+        const tagName = activity.tagName.toLowerCase();
+        const activityId = activityWrapper.getAttribute('activity-id');
 
-        container.appendChild(activityElement);
+        try 
+        {
+            // get component with registry_client
+            await this.registryClient.fetchWebComponents(tagName);
+
+            // create
+            const activityElement = document.createElement(tagName);
+            activityElement.setAttribute('activity-id', activityId);
+
+            activityElement.innerHTML = activity.innerHTML;
+
+            // append
+            this.message.appendChild(activityElement);
+        }
+        catch
+        {
+            console.error(`Shadow DOM render failed to load <${tagName}/> component:`, err);
+        }
+    }
+
+    connectedCallback() {
+        // allow time for parsing
+        setTimeout(() => { this.addActivity(); }, 0);
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
+        // Check for is-user attribute and apply class based on attribute value
         if (name === "is-user") {
             const isUser = newValue === "true";
             this.message.classList.add(

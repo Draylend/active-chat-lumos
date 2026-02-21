@@ -1,5 +1,4 @@
 import "./components/active-chat.js";
-import "../../component-library/mcq/index.js"; // Temporary calling to test MCQ -- FIX --
 
 // Example for adding a message to active-chat
 // 1. Get your <active-chat> instance
@@ -16,11 +15,11 @@ msg.setAttribute("is-user", "true");
 msg.setAttribute("sender", "Student");
 
 // 5. Add the message to the chat
-chat.addMessage(msg);
+chat.appendChild(msg);
 
 // A simulated reply
 const reply = document.createElement('chat-message');
 reply.innerText = "Wow, this means this works!";
 reply.setAttribute("is-user", "false");
 reply.setAttribute("sender", "AI Tutor");
-chat.addMessage(reply);
+chat.appendChild(reply);
