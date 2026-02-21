@@ -23,9 +23,6 @@ class ActivityDiscover
             const tagName = node.value;
 
             this.fetchWebComponents(tagName)
-                .then(() => 
-                {
-                })
                 .catch(err => 
                 {
                     console.error(`Error while loading <${tagName}>:`, err);

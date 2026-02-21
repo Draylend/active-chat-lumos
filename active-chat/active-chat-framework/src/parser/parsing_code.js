@@ -68,7 +68,7 @@ function parse(chat_message, parent = null)
 
 //Option 2: Recursion Without DOM Parser
 //maybe add section for attributes??
-parse(chat_message, node = null)
+/*function parse(chat_message, node = null)
 {
     if (!node)
     {
@@ -109,6 +109,11 @@ parse(chat_message, node = null)
             // closing tag
             if (parsed_content.startsWith("/"))
             {
+                if (regular_text.length > 0)
+                {
+                    node.addChildNode(new ParsingTreeNode("text", regular_text));
+                    regular_text = "";
+                }
                 this.index = index;
                 return;     
             }
@@ -134,6 +139,6 @@ parse(chat_message, node = null)
     }
 
     return node;
-}
+}*/
 
 
