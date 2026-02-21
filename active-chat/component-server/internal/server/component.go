@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"mime" /*milestone 1 feedback change */
 )
 
 func ComponentHandler(componentDir string) http.Handler {
@@ -20,22 +21,35 @@ func ComponentHandler(componentDir string) http.Handler {
 		/* Get /components/mcq/static/header.svg --> <componentDir>/mcq/static/header.svg*/
 		if path == "" {
 			http.NotFound(w, r)
-			log.Printf("Component directory not found")
+			log.Printf("No component path provided")
 			return
 		}
 
 		parts := strings.Split(path, "/")
 		componentName := parts[0]
 
-		var fsPath string
+		var(
+			fsPath	string
+			isMainJS	bool
+		)
+
 		if len(parts) == 1 {
 			fsPath = filepath.Join(componentDir, componentName, "index.js")
+			isMainJS = true
 		} else {
 			/*only allow static*/
 			if parts[1] != "static" {
 				http.NotFound(w, r)
 				return
 			}
+			/*milestone 1&2 feedback: */
+			/* added a length check to ensure /static requests include a file path,
+			preventing malformed requests and potential slice errors*/
+			if len(parts) < 3 {
+				http.Error(w, "missing static asset path", http.StatusBadRequest)
+				return
+			}
+
 			rest := parts[2:]
 			fsPath = filepath.Join(append([]string{componentDir, componentName, "static"}, rest...)...)
 		}
@@ -54,6 +68,17 @@ func ComponentHandler(componentDir string) http.Handler {
 			http.NotFound(w, r)
 			log.Printf("Failed to serve component. Component not found")
 			return
+		}
+
+		/* milestone 1 feeback change here: */
+		/* make sure the correct MIME for JS module*/
+		if isMainJS {
+			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		} else {
+			/* ensure Go knows common types: svg, wasm,..*/
+			if ctype := mime.TypeByExtension(filepath.Ext(cleanPath)); ctype != "" {
+				w.Header().Set("Content-Type", ctype)
+			}
 		}
 
 		http.ServeFile(w, r, cleanPath)
