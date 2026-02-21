@@ -1,4 +1,4 @@
-import { ActivityDiscover } from '../registry_client/registry_client.js'
+import { activity_discover } from '../registry_client/registry_client.js';
 
 export class ChatMessage extends HTMLElement {
     static observedAttributes = ["sender", "is-user"];
@@ -51,7 +51,7 @@ export class ChatMessage extends HTMLElement {
 
         try
         {
-            this.registryClient = new ActivityDiscover();
+            this.registryClient = new activity_discover();
         }
         catch
         {
@@ -100,6 +100,7 @@ export class ChatMessage extends HTMLElement {
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
+        // Check for is-user attribute and apply class based on attribute value
         if (name === "is-user") {
             const isUser = newValue === "true";
             this.message.classList.add(
