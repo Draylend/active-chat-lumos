@@ -1,4 +1,4 @@
-import { activity_discover } from '../registry_client/registry_client.js'
+import { ActivityDiscover } from '../registry_client/registry_client.js'
 
 export class ChatMessage extends HTMLElement {
     static observedAttributes = ["sender", "is-user"];
@@ -51,7 +51,7 @@ export class ChatMessage extends HTMLElement {
 
         try
         {
-            this.registryClient = new activity_discover();
+            this.registryClient = new ActivityDiscover();
         }
         catch
         {
