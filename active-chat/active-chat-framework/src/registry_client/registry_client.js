@@ -1,48 +1,53 @@
-import { code_parsing } from "./.parsing_code.js";
-
-class activity_discover extends code_parsing 
+class ActivityDiscover
 {
-    constructor() 
+    constructor() {}
+
+    fetch(node)
     {
-        super();
+        if (node.type !== "tag")
+        {
+            return false;
+        }
+        const tag = node.value;
+        if (tag === "chat-activity"||tag === "chat-interaction")
+        {
+            return false;
+        }
+        return true;
     }
 
     discover_activities(node) 
     {
-        if (node.type === "tag" && !node.attributes.known) 
+        if (this.fetch(node)) 
         {
-            const tagName = node.value.replace(/<|\/?>/g, "").trim().split(/\s+/)[0];
-            node.attributes.known = true;
+            const tagName = node.value;
 
             this.fetchWebComponents(tagName)
                 .then(() => 
                 {
-                    for (let i = 0; i < node.children.length; i++) 
-                    {
-                        this.discover_activities(node.children[i]);
-                    }
                 })
                 .catch(err => 
                 {
                     console.error(`Error while loading <${tagName}>:`, err);
-                    for (let i = 0; i < node.children.length; i++) 
-                    {
-                        this.discover_activities(node.children[i]);
-                    }
                 });
-        } 
-        else
-        {
-            for (let i = 0; i < node.children.length; i++) 
-            {
-                this.discover_activities(node.children[i]);
-            }
         }
+        for (let i = 0; i < node.children.length; i++) 
+        {
+            this.discover_activities(node.children[i]);
+        }    
     }
 
     fetchWebComponents(tagName) 
     {
-        const url = `http://localhost:8090/components/${tagName}.js`;
+        const BASE_URL = window.CONFIG.COMPONENTS_URL;
+        const validTag = /^[a-z0-9\-]+$/i;
+        if (!validTag.test(tagName))
+        {
+            throw new Error(`Invalid component name: ${tagName}`);
+        }
+        const url = `${BASE_URL}/${tagName}.js`;
+
+
         return import(url)
             .then(() => 
             {
@@ -56,4 +61,5 @@ class activity_discover extends code_parsing
     }
 }
 
-export { activity_discover };
+export { ActivityDiscover };
+    

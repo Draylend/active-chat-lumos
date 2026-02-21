@@ -16,96 +16,79 @@ class ParsingTreeNode
         this.children.push(childNode);
     }
 }
-/*
-parse(chat_message) 
+
+//Option 1: Recursion Code with DOM Parser
+function parse(chat_message, parent = null)
 {
-        let root = new ParsingTreeNode("root");
-        let stack = [root];
-        let regular_text = "";
-
-        for (let i = 0; i < chat_message.length; i++) 
-        {
-            let currentNode = stack[stack.length - 1];
-
-            if (chat_message[i] === "<") 
-            {
-                if (regular_text.length > 0) 
-                {
-                    currentNode.addChildNode(new ParsingTreeNode("text", regular_text));
-                    regular_text = "";
-                }
-
-                let depth = 1;
-                let index = i + 1;
-
-                while (index < chat_message.length && depth > 0)
-                {
-                    if (chat_message[index] === "<") 
-                    {
-                        depth++;
-                    }
-                    else if (chat_message[index] === ">") 
-                    {
-                        depth--;
-                    }
-                    index++;
-                }
-
-                if (depth !== 0) 
-                {
-                    regular_text += "<";
-                    continue;
-                }
-
-                let fullTag = chat_message.substring(i, index);
-                let tagNode = new ParsingTreeNode("tag", fullTag);
-                if (fullTag.startsWith("<chat-activity") || fullTag.startsWith("<chat-interaction")) 
-                {
-                    tagNode.attributes.known = true;
-                }
-                currentNode.addChildNode(tagNode);
-                i = index - 1;
-            } 
-            else 
-            {
-                regular_text += chat_message[i];
-            }
-        }
-
-        // flush any remaining regular text
-        if (regular_text.length > 0) 
-        {
-            stack[stack.length - 1].addChildNode(
-                new ParsingTreeNode("text", regular_text)
-            );
-        }
-
+    if (typeof chat_message == "string")
+    {
+        const parser = new DOMParser();
+        const parseInfo = parser.parseFromString(chat_message, "text/html");
+        const root = new ParsingTreeNode("root");
+        parse(parseInfo.body, root);
         return root;
     }
-*/
-//This is the other version of the initial code parsing code that I created that works similar to the tree structure mentioned during discussion on 02/17/26. 
-parse(chat_message)
+    if (!parent)
+    {
+        parent = new ParsingTreeNode("root");
+    }
+    const childNodes = chat_message.childNodes;
+    for (let i = 0; i < childNodes.length; i++)
+    {
+        if (childNodes[i].nodeType == Node.TEXT_NODE)
+        {
+            const regular_text = childNodes[i].textContent;
+
+            if (regular_text && regular_text.trim().length > 0)
+            {
+                parent.addChildNode(new ParsingTreeNode("text", regular_text.trim()));
+            }
+        }
+        else if (childNodes[i].nodeType == Node.ELEMENT_NODE)
+        {
+            const attributes = {};
+
+            for (let j = 0; j < childNodes[i].attributes.length; j++)
+            {
+                const attr = childNodes[i].attributes[j];
+                attributes[attr.name] = attr.value;
+            }
+
+            const tagNode = new ParsingTreeNode("tag", childNodes[i].tagName.toLowerCase(),
+                attributes
+            );
+
+            parent.addChildNode(tagNode);
+
+            parse(childNodes[i], tagNode);
+        }
+    }
+    return parent;
+}
+
+//Option 2: Recursion Without DOM Parser
+//maybe add section for attributes??
+parse(chat_message, node = null)
 {
-    let root = new ParsingTreeNode("root");
-    let stack = [root];
+    if (!node)
+    {
+        node = new ParsingTreeNode("root");
+        this.index = 0;
+    }
 
     let regular_text = "";
 
-    for (let i = 0; i < chat_message.length; i++)
+    for (; this.index < chat_message.length; this.index++)
     {
-        let currentNode = stack.at(-1);
-
-        if (chat_message[i] === '<')
+        if (chat_message[this.index] === '<')
         {
             if (regular_text.length > 0)
             {
-                currentNode.addChildNode(
-                    new ParsingTreeNode("text", regular_text)
-                );
+                node.addChildNode(new ParsingTreeNode("text", regular_text));
                 regular_text = "";
             }
 
-            let index = chat_message.indexOf(">", i);
+            let index = chat_message.indexOf(">", this.index);
 
             if (index === -1)
             {
@@ -114,7 +97,7 @@ parse(chat_message)
             }
 
             let parsed_content =
-                chat_message.substring(i + 1, index).trim();
+                chat_message.substring(this.index + 1, index).trim();
 
             // validate tag
             if (!/^\/?[a-zA-Z]/.test(parsed_content))
@@ -126,41 +109,31 @@ parse(chat_message)
             // closing tag
             if (parsed_content.startsWith("/"))
             {
-                let tagName = parsed_content.slice(1);
-
-                while (stack.length > 1 &&
-                       stack.at(-1).value !== tagName)
-                {
-                    stack.pop();
-                }
-
-                if (stack.length > 1)
-                    stack.pop();
+                this.index = index;
+                return;     
             }
             else
             {
-                let tagNode =
-                    new ParsingTreeNode("tag", parsed_content);
+                let tagNode = new ParsingTreeNode("tag", parsed_content);
+                node.addChildNode(tagNode);
+                this.index = index + 1;
+                this.parse(chat_message, tagNode);
+                this.index = index;
 
-                currentNode.addChildNode(tagNode);
-                stack.push(tagNode);
             }
-
-            i = index;
         }
         else
         {
-            regular_text += chat_message[i];
+            regular_text += chat_message[this.index];
         }
     }
 
     if (regular_text.length > 0)
     {
-        stack.at(-1).addChildNode(
-            new ParsingTreeNode("text", regular_text)
-        );
+        node.addChildNode(new ParsingTreeNode("text", regular_text));
     }
 
-    return root;
+    return node;
 }
+
 
