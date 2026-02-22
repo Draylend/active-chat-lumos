@@ -1,8 +1,5 @@
 // Option Web Component for MCQ
 class OptionChoice extends HTMLElement {
-    // Hold the unique id of an option
-    static observedAttributes = ["option-id"];
-
     constructor() {
         super();
         this.attachShadow({ mode: "open" });
