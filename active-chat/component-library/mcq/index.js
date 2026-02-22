@@ -17,7 +17,7 @@ class MCQ extends HTMLElement {
 
         // Listen for option selection events
         this.addEventListener('option-selected', (e) => {
-            const activityId = this.getAttribute('activity-id');
+            const activityId = this.closest('chat-activity').getAttribute('activity-id');
             const selection = e.detail.selection;
             this.serializeInteraction(activityId, selection);
         });
@@ -41,16 +41,14 @@ class MCQ extends HTMLElement {
     serializeInteraction(activityId, selection) {
         // Make XML string
         const xmlString = `
-<chat-message sender="Student" is-user="true">
-    <chat-interaction activity-id="${activityId}">
-        <selection>${selection}</selection>
-    </chat-interaction>
-</chat-message>`.trim();
+<chat-interaction activity-id="${activityId}">
+    <selection>${selection}</selection>
+</chat-interaction>`.trim();
 
         this.dispatchEvent(new CustomEvent('interaction-happened', {
             bubbles: true,
             composed: true,
-            detail: { xml: xmlString }
+            detail: { xml: xmlString, selection:selection }
         }));
     }
 }

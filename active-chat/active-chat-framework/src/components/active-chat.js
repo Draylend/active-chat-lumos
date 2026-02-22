@@ -111,18 +111,14 @@ class ActiveChat extends HTMLElement {
 
         // Chat interaction
         this.addEventListener('interaction-happened', (e) => {
-            const { xml } = e.detail;
-
-            // Convert from string
-            const parser = new DOMParser();
-            const interaction = parser.parseFromString(xml, 'text/xml');
-            const interactionWrapper = interaction.querySelector('chat-interaction');
+            const xml = e.detail.xml;
+            const selection = e.detail.selection; // use to check if answer is correct?
 
             // Add new message to chat
             const newMessage = document.createElement('chat-message');
             newMessage.setAttribute("is-user", "true");
             newMessage.setAttribute("sender", "Student");
-            newMessage.appendChild(interactionWrapper);
+            newMessage.innerHTML = xml;
             this.appendChild(newMessage);
         });
     }
