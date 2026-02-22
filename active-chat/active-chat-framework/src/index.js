@@ -1,4 +1,5 @@
 import "./components/active-chat.js";
+import "../../component-library/mcq/index.js";
 
 // Example for adding a message to active-chat
 // 1. Get your <active-chat> instance
