@@ -82,7 +82,7 @@ class ActiveChat extends HTMLElement {
         this.attachEvents();
     }
 
-    // Adding events to textbar
+    // Adding events to textbar and chat interactions
     attachEvents() {
         // If enter key is pressed (without shift key)
         this.textBar.addEventListener("keydown", (e) => {
@@ -107,6 +107,19 @@ class ActiveChat extends HTMLElement {
                 // Reset value
                 this.textBar.value = "";
             }
+        });
+
+        // Chat interaction
+        this.addEventListener('interaction-happened', (e) => {
+            const xml = e.detail.xml;
+            const selection = e.detail.selection; // use to check if answer is correct?
+
+            // Add new message to chat
+            const newMessage = document.createElement('chat-message');
+            newMessage.setAttribute("is-user", "true");
+            newMessage.setAttribute("sender", "Student");
+            newMessage.innerHTML = xml;
+            this.appendChild(newMessage);
         });
     }
 }

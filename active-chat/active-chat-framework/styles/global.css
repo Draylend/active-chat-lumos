@@ -43,3 +43,7 @@ html, body {
     align-items: center;
     font-family: var(--ac-font-family);
 }
+
+chat-message:has(chat-interaction) {
+    display: none
+}

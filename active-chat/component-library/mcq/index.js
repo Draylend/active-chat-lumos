@@ -11,9 +11,16 @@ class MCQ extends HTMLElement {
         this.wrapper = document.createElement("div");
         this.wrapper.classList.add("wrapper");
 
-        // Children (quesiton and options)
+        // Children (question and options)
         const slot = document.createElement("slot");
         this.wrapper.appendChild(slot);
+
+        // Listen for option selection events
+        this.addEventListener('option-selected', (e) => {
+            const activityId = this.closest('chat-activity').getAttribute('activity-id');
+            const selection = e.detail.selection;
+            this.serializeInteraction(activityId, selection);
+        });
 
         const style = document.createElement("style");
         style.textContent = `
@@ -29,6 +36,20 @@ class MCQ extends HTMLElement {
         `;
 
         this.shadowRoot.append(style, this.wrapper);
+    }
+
+    serializeInteraction(activityId, selection) {
+        // Make XML string
+        const xmlString = `
+<chat-interaction activity-id="${activityId}">
+    <selection>${selection}</selection>
+</chat-interaction>`.trim();
+
+        this.dispatchEvent(new CustomEvent('interaction-happened', {
+            bubbles: true,
+            composed: true,
+            detail: { xml: xmlString, selection:selection }
+        }));
     }
 }
 
