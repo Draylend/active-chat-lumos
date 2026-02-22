@@ -90,7 +90,7 @@ export class ChatMessage extends HTMLElement {
         }
         catch
         {
-            console.error(`Shadow DOM render failed to load <${tagName}/> component:`, err);
+            console.error(`Shadow DOM render failed to load <${tagName}/> component:`);
         }
     }
 
