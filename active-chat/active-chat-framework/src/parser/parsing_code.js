@@ -15,6 +15,15 @@ class ParsingTreeNode
         childNode.parent = this;
         this.children.push(childNode);
     }
+
+    accept(visitor, currActivity = null)
+    {
+        currActivity = visitor(this, currActivity);
+        for (let i = 0; i < this.children.length; i++)
+        {
+            this.children[i].accept(visitor, currActivity);
+        }
+    }
 }
 
 //Option 1: Recursion Code with DOM Parser
@@ -66,74 +75,35 @@ function parse(chat_message, parent = null)
     return parent;
 }
 
-//Option 2: Recursion Without DOM Parser
-//maybe add section for attributes??
-/*parse(chat_message, node = null)
+//Milestone 3.1 (implement an accept method for visitor pattern)
+function visitor(node, currActivity = null)
 {
-    if (!node)
+    //function that allows chat interaction tags to
+    //modify the visual state of an existing activity
+    if (node.type == "text")
     {
-        node = new ParsingTreeNode("root");
-        this.index = 0;
+        console.log(node.value);
     }
-
-    let regular_text = "";
-
-    for (; this.index < chat_message.length; this.index++)
+    if (node.type == "tag")
     {
-        if (chat_message[this.index] === '<')
+        if (node.value == "chat-activity")
         {
-            if (regular_text.length > 0)
-            {
-                node.addChildNode(new ParsingTreeNode("text", regular_text));
-                regular_text = "";
-            }
-
-            let index = chat_message.indexOf(">", this.index);
-
-            if (index === -1)
-            {
-                regular_text += "<";
-                continue;
-            }
-
-            let parsed_content =
-                chat_message.substring(this.index + 1, index).trim();
-
-            // validate tag
-            if (!/^\/?[a-zA-Z]/.test(parsed_content))
-            {
-                regular_text += "<";
-                continue;
-            }
-
-            // closing tag
-            if (parsed_content.startsWith("/"))
-            {
-                this.index = index;
-                return;     
-            }
-            else
-            {
-                let tagNode = new ParsingTreeNode("tag", parsed_content);
-                node.addChildNode(tagNode);
-                this.index = index + 1;
-                this.parse(chat_message, tagNode);
-                this.index = index;
-
-            }
+            currActivity = node;
+            console.log("Chat Activity");
         }
-        else
+        if (node.value === "mcq")
         {
-            regular_text += chat_message[this.index];
+            console.log("MCQ component")
+        }
+        if (node.value == "chat-interaction")
+        {
+            const userChoice = node.attributes.userChoice;
+            if (currActivity && userChoice)
+            {
+                currActivity.attributes.selected = userChoice;
+            }
+            console.log("Chat interaction modified");
         }
     }
-
-    if (regular_text.length > 0)
-    {
-        node.addChildNode(new ParsingTreeNode("text", regular_text));
-    }
-
-    return node;
-}*/
-
-
+    return currActivity;
+}
