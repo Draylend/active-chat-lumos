@@ -29,11 +29,33 @@ class OptionChoice extends HTMLElement {
                 color: white;
                 width: 100%;
                 border: 1px solid #1f2523;
+                font-size: 24px;
+            }
+
+            button.correct {
+                background: #caffd6;
+                border: 1px solid #00ff51; 
+                color: black;
+            }
+
+            button.wrong {
+                background: #ffcaca;
+                border: 1px solid #ff0000; 
+                color: black;
             }
 
             .button-style:hover {
                 background: #3e5b52;
                 border: 1px solid #23966f;
+            }
+
+            button.disabled-hover:hover {
+                background: inherit;
+                cursor: default;
+            }
+
+            button.disabled-hover {
+                pointer-events: none;
             }
         `;
 

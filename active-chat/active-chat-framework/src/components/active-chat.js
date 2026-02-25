@@ -19,6 +19,53 @@ class ActiveChat extends HTMLElement {
         const slot = document.createElement('slot');
         chat.appendChild(slot);
 
+        // For DEMO Presentation, add slotchange event to detect messages
+        // being added to give simulated reply
+        slot.addEventListener('slotchange', () => {
+            // Retrieve all elements (children) added to slot
+            const elements = slot.assignedElements({ flatten: true });
+
+            // Grab most recently added element
+            const recentElement = elements[elements.length - 1];
+
+            if(recentElement.innerText === "Hello") {
+                const newMessage = document.createElement('chat-message');
+                newMessage.innerText = "Hi Student! What's on your mind today?";
+                newMessage.setAttribute("is-user", "false");
+                newMessage.setAttribute("sender", "AI Tutor");
+                this.appendChild(newMessage);
+            } else if(recentElement.innerText === "Give me an mcq on computer science") {
+                const newMessage = document.createElement('chat-message');
+
+                const newActivity = document.createElement('chat-activity');
+                const newMCQ = document.createElement('multiple-choice-question');
+                const questionHeader = document.createElement('question-header');
+                questionHeader.innerText = "What does JS stand for?";
+                questionHeader.setAttribute("answer", "JavaScript");
+
+                const optionOne = document.createElement('option-choice');
+                optionOne.innerText = "Jury Service";
+                const optionTwo = document.createElement('option-choice');
+                optionTwo.innerText = "JavaScript";
+                const optionThree = document.createElement('option-choice');
+                optionThree.innerText = "Juicy Salmon";
+                const optionFour = document.createElement('option-choice');
+                optionFour.innerText = "Java Syntax";
+
+                newMessage.setAttribute("is-user", "false");
+                newMessage.setAttribute("sender", "AI Tutor");
+                newMessage.append(newActivity);
+                newActivity.append(newMCQ);
+                newMCQ.append(questionHeader);
+                newMCQ.append(optionOne);
+                newMCQ.append(optionTwo);
+                newMCQ.append(optionThree);
+                newMCQ.append(optionFour);
+
+                this.appendChild(newMessage);
+            }
+        });
+
         // Text bar
         const textBar = document.createElement('textarea');
         textBar.classList.add('text-bar');
@@ -33,7 +80,7 @@ class ActiveChat extends HTMLElement {
         style.textContent = `
             .chat-box {
                 height: 90vh;
-                width: 100%;
+                width: 90vw;
                 border-radius: 12px;
                 display: flex;
                 padding: 15px;

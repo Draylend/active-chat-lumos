@@ -34,6 +34,7 @@ export class ChatMessage extends HTMLElement {
                 margin-bottom: 20px;
                 line-height: 24px;
                 color: white;
+                font-size: 32px;
             }
 
             .text-box-ai {
@@ -42,6 +43,7 @@ export class ChatMessage extends HTMLElement {
                 margin-bottom: 10px;
                 max-width: 90%;
                 line-height: 24px;
+                font-size: 32px;
 
                 position: relative;
             }

@@ -25,16 +25,36 @@ class MCQ extends HTMLElement {
             options.forEach(option => {
                 const button = option.shadowRoot.querySelector('button');
                 button.disabled = true;
+                button.classList.add('disabled-hover');
             });
             
             this.handleInteraction(activityId, selection);
+
+            // Grab selected element itself
+            const selectedElement = e.target.closest('option-choice');
+            const selectedButton = selectedElement.shadowRoot.querySelector('button');
+
+            // Get active-chat to append a message depending on correctness
+            const chat = document.querySelector('active-chat');
+            const newMessage = document.createElement('chat-message');
 
             //check answer
             let correctAnswer = false;
             if (selection == this.querySelector('question-header').getAttribute('answer')) {
                 correctAnswer = true;
                 //console.log("woooooooooooooooooo correct answer");
+                selectedButton.classList.add('correct');
+                newMessage.innerText = "You got it correct, great job!";
+                newMessage.setAttribute("is-user", "false");
+                newMessage.setAttribute("sender", "AI Tutor");
+            } else {
+                selectedButton.classList.add('wrong');
+                newMessage.innerText = "Sorry, that is incorrect. The correct answer is JavaScript.";
+                newMessage.setAttribute("is-user", "false");
+                newMessage.setAttribute("sender", "AI Tutor");
             }
+
+            chat.append(newMessage);
         });
 
         const style = document.createElement("style");
