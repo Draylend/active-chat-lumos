@@ -19,7 +19,22 @@ class MCQ extends HTMLElement {
         this.addEventListener('option-selected', (e) => {
             const activityId = this.closest('chat-activity').getAttribute('activity-id');
             const selection = e.detail.selection;
-            this.serializeInteraction(activityId, selection);
+
+            // Disable all option buttons
+            const options = this.querySelectorAll('option-choice');
+            options.forEach(option => {
+                const button = option.shadowRoot.querySelector('button');
+                button.disabled = true;
+            });
+            
+            this.handleInteraction(activityId, selection);
+
+            //check answer
+            let correctAnswer = false;
+            if (selection == this.querySelector('question-header').getAttribute('answer')) {
+                correctAnswer = true;
+                //console.log("woooooooooooooooooo correct answer");
+            }
         });
 
         const style = document.createElement("style");
@@ -38,13 +53,14 @@ class MCQ extends HTMLElement {
         this.shadowRoot.append(style, this.wrapper);
     }
 
-    serializeInteraction(activityId, selection) {
-        // Make XML string
+    handleInteraction(activityId, selection) { 
+        // Serialize XML string
         const xmlString = `
 <chat-interaction activity-id="${activityId}">
     <selection>${selection}</selection>
 </chat-interaction>`.trim();
 
+        // Dispatch event for active-chat
         this.dispatchEvent(new CustomEvent('interaction-happened', {
             bubbles: true,
             composed: true,

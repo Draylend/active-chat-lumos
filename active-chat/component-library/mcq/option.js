@@ -12,7 +12,7 @@ class OptionChoice extends HTMLElement {
         const slot = document.createElement("slot");
         this.wrapper.appendChild(slot);
 
-        // Interaction Serialization
+        // On click
         this.wrapper.onclick = () => {
             this.dispatchEvent(new CustomEvent('option-selected', {
                 bubbles: true,
