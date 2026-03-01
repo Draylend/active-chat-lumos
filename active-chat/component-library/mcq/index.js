@@ -53,10 +53,12 @@ class MCQ extends HTMLElement {
             if (value == selectedVAl)
             {
                 option.style.background = "#4f6f66";
+                option.style.outline = "2px solid #91beae";
             }   
             else
             {
                 option.style.background = "#e03c3c";
+                option.style.outline = "2px solid #e03c3c"
             }
             option.setAttribute("disabled", "true");
         })
