@@ -26,7 +26,7 @@ function parse(chat_message, parent = null)
     return root;
 }
     
-
+/*
 //Milestone 3.1 (implement an accept method for visitor pattern)
 function visitor(node, currActivity = null)
 {
@@ -71,4 +71,4 @@ function visitor(node, currActivity = null)
         }
     }
     return currActivity;
-}
+}*/
