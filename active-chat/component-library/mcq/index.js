@@ -37,6 +37,30 @@ class MCQ extends HTMLElement {
 
         this.shadowRoot.append(style, this.wrapper);
     }
+    //accept function for MCQ Component
+    accept(interactionElement)
+    {
+        const selectionElement = interactionElement.querySelector("selection");
+        const selectedVal = selectionElement.textContent.trim();
+
+        if (!selectionElement)
+        {
+            return;
+        }
+        const options = this.querySelectorAll("option");
+        options.forEach(option => {
+            const value = option.getAttribute("selection");
+            if (value == selectedVAl)
+            {
+                option.style.background = "#4f6f66";
+            }   
+            else
+            {
+                option.style.background = "#e03c3c";
+            }
+            option.setAttribute("disabled", "true");
+        })
+    }
 
     serializeInteraction(activityId, selection) {
         // Make XML string
