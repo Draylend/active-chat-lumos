@@ -41,16 +41,15 @@ class MCQ extends HTMLElement {
     accept(interactionElement)
     {
         const selectionElement = interactionElement.querySelector("selection");
-        const selectedVal = selectionElement.textContent.trim();
-
         if (!selectionElement)
         {
             return;
         }
+        const selectedVal = selectionElement.textContent.trim();
         const options = this.querySelectorAll("option");
         options.forEach(option => {
             const value = option.getAttribute("selection");
-            if (value == selectedVAl)
+            if (value == selectedVal)
             {
                 option.style.background = "#4f6f66";
                 option.style.outline = "2px solid #91beae";
