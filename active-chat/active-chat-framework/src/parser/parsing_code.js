@@ -1,109 +1,68 @@
-class ParsingTreeNode
+//import { marked } from "../../../node_modules/marked/lib/marked.esm.js"; // Import markdown parser
+
+// Recursion Code with DOM Parser
+export function parse(mdMessage)
 {
-    constructor(type, value = null, attributes = {})
-    {
-        this.type = type;
-        this.value = value;
-        this.attributes = attributes;
-        this.children = [];
-        this.parent = null;
-    }
+    console.log("In parser");
 
+    // Parse from Markdown --> XML
+    //const xmlMessage = marked.parse(mdMessage);
+    
+    // Create DOM Parser Object
+    const parser = new DOMParser();
+    
+    // Parse XML string to create DOM Tree
+    const parseInfo = parser.parseFromString(mdMessage, "text/html");
 
-    addChildNode(childNode)
-    {
-        childNode.parent = this;
-        this.children.push(childNode);
-    }
-
-    accept(visitor, currActivity = null)
-    {
-        currActivity = visitor(this, currActivity);
-        for (let i = 0; i < this.children.length; i++)
-        {
-            this.children[i].accept(visitor, currActivity);
-        }
-    }
+    // Traverse DOM Tree to find unknown tags
+    walk(parseInfo.body);
 }
 
-//Option 1: Recursion Code with DOM Parser
-function parse(chat_message, parent = null)
-{
-    if (typeof chat_message == "string")
-    {
-        const parser = new DOMParser();
-        const parseInfo = parser.parseFromString(chat_message, "text/html");
-        const root = new ParsingTreeNode("root");
-        parse(parseInfo.body, root);
-        return root;
-    }
-    if (!parent)
-    {
-        parent = new ParsingTreeNode("root");
-    }
-    const childNodes = chat_message.childNodes;
-    for (let i = 0; i < childNodes.length; i++)
-    {
-        if (childNodes[i].nodeType == Node.TEXT_NODE)
-        {
-            const regular_text = childNodes[i].textContent;
+// Recursively walk/traverse through children
+function walk(node) {
+    // If activity: call, fetch, and render component
+    // Else if interaction: Modify visual state of existing activity
+    // Else: Print normal message
 
-            if (regular_text && regular_text.trim().length > 0)
-            {
-                parent.addChildNode(new ParsingTreeNode("text", regular_text.trim()));
-            }
+    // Add error check for user-input (user should not trigger Markdown/XML detection)
+    // Although user message is not parsed initially, it is on replay (as all messages are parsed and appended)
+
+    if(node.tagName) {
+        if(node.tagName.toLowerCase() === "chat-activity") {
+            console.log("Adding activity, fetching component...");
+
+            // Create message wrapper
+            const newMessage = document.createElement("chat-message");
+
+            // Set message attributes
+            newMessage.setAttribute("is-user", "false");
+            newMessage.setAttribute("sender", "AI Tutor");
+
+            // Add activity to Shadow DOM
+            newMessage.addActivity(node);
+            document.querySelector("active-chat").appendChild(newMessage);
+
+            return;
+        } else if(node.tagName.toLowerCase() === "chat-interaction") {
+            console.log("Interaction detected, calling accept()");
+
+            // Grab corresponding activity-id
+            const currActivityID = node.getAttribute('activity-id');
+
+            // Grab the activity we need to edit
+            const currActivity = document.querySelector(`chat-activity[activity-id="${currActivityID}"]`);
+
+            // Call accept to modify visual state
+            currActivity.accept(node);
+
+            return;
         }
-        else if (childNodes[i].nodeType == Node.ELEMENT_NODE)
-        {
-            const attributes = {};
 
-            for (let j = 0; j < childNodes[i].attributes.length; j++)
-            {
-                const attr = childNodes[i].attributes[j];
-                attributes[attr.name] = attr.value;
-            }
-
-            const tagNode = new ParsingTreeNode("tag", childNodes[i].tagName.toLowerCase(),
-                attributes
-            );
-
-            parent.addChildNode(tagNode);
-
-            parse(childNodes[i], tagNode);
+        // Recursively traverse children
+        for (const child of node.childNodes) {
+            walk(child);
         }
+    } else {
+        // Here is where we format LLM plaintext response
     }
-    return parent;
-}
-
-//Milestone 3.1 (implement an accept method for visitor pattern)
-function visitor(node, currActivity = null)
-{
-    //function that allows chat interaction tags to
-    //modify the visual state of an existing activity
-    if (node.type == "text")
-    {
-        console.log(node.value);
-    }
-    if (node.type == "tag")
-    {
-        if (node.value == "chat-activity")
-        {
-            currActivity = node;
-            console.log("Chat Activity");
-        }
-        if (node.value === "mcq")
-        {
-            console.log("MCQ component")
-        }
-        if (node.value == "chat-interaction")
-        {
-            const userChoice = node.attributes.userChoice;
-            if (currActivity && userChoice)
-            {
-                currActivity.attributes.selected = userChoice;
-            }
-            console.log("Chat interaction modified");
-        }
-    }
-    return currActivity;
 }

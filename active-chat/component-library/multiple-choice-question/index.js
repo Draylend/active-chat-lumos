@@ -1,7 +1,8 @@
 // MCQ Web Component
 
-import "./question.js";
-import "./option.js";
+import "./static/option.js";
+import "./static/question.js";
+
 class MCQ extends HTMLElement {
     constructor() {
         super();
@@ -20,11 +21,12 @@ class MCQ extends HTMLElement {
             const activityId = this.closest('chat-activity').getAttribute('activity-id');
             const selection = e.detail.selection;
 
-            // Disable all option buttons
+            // Disable all option buttons (assuming we want first press to lock in your choice)
             const options = this.querySelectorAll('option-choice');
             options.forEach(option => {
                 const button = option.shadowRoot.querySelector('button');
                 button.disabled = true;
+                button.classList.add('disabled-hover');
             });
             
             this.handleInteraction(activityId, selection);
@@ -51,6 +53,40 @@ class MCQ extends HTMLElement {
         `;
 
         this.shadowRoot.append(style, this.wrapper);
+    }
+
+    //accept function for MCQ Component
+    accept(interactionElement)
+    {
+        console.log("In accept(), editing visual state");
+        
+        // Grab corresponding activity-id
+        const currActivityID = interactionElement.getAttribute('activity-id');
+
+        // Grab the activity we need to edit
+        const currActivity = document.querySelector(`chat-activity[activity-id="${currActivityID}"]`);
+
+        // For answer checking, isolate selected value
+        const selectedVal = interactionElement.querySelector("selection").textContent.trim();
+        // Grab answer and compare against selection
+        const answer = currActivity.querySelector("question-header").getAttribute("answer");
+        const correct = answer === selectedVal;
+
+        // Grab selected button itself
+        let selectedButton = null;
+        const options = currActivity.querySelectorAll('option-choice');
+        options.forEach(option => {
+            if(option.textContent.trim() === selectedVal) {
+                selectedButton = option.shadowRoot.querySelector('button');
+            }
+        });
+
+        // Depending on correctness, change styling
+        if (correct) {
+            selectedButton.classList.add('correct');
+        } else {
+            selectedButton.classList.add('wrong');
+        }
     }
 
     handleInteraction(activityId, selection) { 
