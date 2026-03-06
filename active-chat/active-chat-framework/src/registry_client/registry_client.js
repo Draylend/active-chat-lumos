@@ -2,41 +2,6 @@ class ActivityDiscover
 {
     constructor() {}
 
-    fetch(node)
-    {
-        if (node.type !== "tag")
-        {
-            return false;
-        }
-        const tag = node.value;
-        if (tag === "chat-activity"||tag === "chat-interaction")
-        {
-            return false;
-        }
-        return true;
-    }
-
-    discover_activities(node) 
-    {
-        if (this.fetch(node)) 
-        {
-            const tagName = node.value;
-
-            this.fetchWebComponents(tagName)
-                .then(() => 
-                {
-                })
-                .catch(err => 
-                {
-                    console.error(`Error while loading <${tagName}>:`, err);
-                });
-        }
-        for (let i = 0; i < node.children.length; i++) 
-        {
-            this.discover_activities(node.children[i]);
-        }    
-    }
-
     fetchWebComponents(tagName) 
     {
         const BASE_URL = window.CONFIG.COMPONENTS_URL;
@@ -45,7 +10,7 @@ class ActivityDiscover
         {
             throw new Error(`Invalid component name: ${tagName}`);
         }
-        const url = `${BASE_URL}/${tagName}.js`;
+        const url = `${BASE_URL}/${tagName}/index.js`;
 
 
         return import(url)

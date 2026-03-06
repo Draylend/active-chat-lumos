@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"example/lumos/internal/middleware" /* import CORS*/
-	"example/lumos/internal/server"
+	"component-server/internal/middleware" /* import CORS*/
+	"component-server/internal/server"
 )
 
 func main() {

@@ -38,22 +38,28 @@ func ComponentHandler(componentDir string) http.Handler {
 			isMainJS = true
 		} else {
 			/*only allow static*/
-			if parts[1] != "static" {
+			if parts[1] != "static" && parts[1] != "index.js" {
 				http.NotFound(w, r)
 				return
 			}
-			/*milestone 1&2 feedback: */
-			/* added a length check to ensure /static requests include a file path,
-			preventing malformed requests and potential slice errors*/
-			if len(parts) < 3 {
-				http.Error(w, "missing static asset path", http.StatusBadRequest)
-				return
+
+			if parts[1] == "index.js" {
+				fsPath = filepath.Join(componentDir, componentName, "index.js")
+				isMainJS = true
+			} else {
+				/*milestone 1&2 feedback: */
+				/* added a length check to ensure /static requests include a file path,
+				preventing malformed requests and potential slice errors*/
+				if len(parts) < 3 {
+					http.Error(w, "missing static asset path", http.StatusBadRequest)
+					return
+				}
+
+				rest := parts[2:]
+				fsPath = filepath.Join(append([]string{componentDir, componentName, "static"}, rest...)...)
 			}
-
-			rest := parts[2:]
-			fsPath = filepath.Join(append([]string{componentDir, componentName, "static"}, rest...)...)
 		}
-
+		
 		/*path traversal*/
 		cleanBase := filepath.Clean(componentDir)
 		cleanPath := filepath.Clean(fsPath)
