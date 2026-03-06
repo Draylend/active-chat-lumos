@@ -25,6 +25,9 @@ class ActiveChat extends HTMLElement {
         slot.addEventListener('slotchange', () => {
             // Retrieve all elements (children) added to slot (should be chat-message components)
             const elements = slot.assignedElements({ flatten: true });
+            // Check if there are any children (messages) first
+            if (elements.length === 0) return;
+            
             // Grab most recently added chat-message
             const recentElement = elements[elements.length - 1];
             //const markdownString = recentElement.innerText;
@@ -152,6 +155,23 @@ class ActiveChat extends HTMLElement {
             newMessage.setAttribute("sender", "Student");
             newMessage.innerHTML = xml;
             this.appendChild(newMessage);
+        });
+
+        // Replay Integrity -- add refresh listener
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("Page loaded!");
+
+            // Grab Chat Log (wherever it's stored)
+            const log = false;  // temp
+
+            // Check if log exists; if not, don't replay events (there are none)
+            if(log) {
+                const chatMessages = null;
+
+                chatMessages.forEach(message => {
+                    parse(message);
+                });
+            }
         });
     }
 }

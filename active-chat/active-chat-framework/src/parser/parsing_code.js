@@ -24,6 +24,9 @@ function walk(node) {
     // Else if interaction: Modify visual state of existing activity
     // Else: Print normal message
 
+    // Add error check for user-input (user should not trigger Markdown/XML detection)
+    // Although user message is not parsed initially, it is on replay (as all messages are parsed and appended)
+
     if(node.tagName) {
         if(node.tagName.toLowerCase() === "chat-activity") {
             console.log("Adding activity, fetching component...");
