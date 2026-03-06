@@ -106,6 +106,9 @@ class ActiveChat extends HTMLElement {
 
                 // Reset value
                 this.textBar.value = "";
+
+                // trigger llm interaction
+                this.llmInteraction(message);
             }
         });
 
@@ -119,7 +122,31 @@ class ActiveChat extends HTMLElement {
             newMessage.setAttribute("sender", "Student");
             newMessage.innerHTML = xml;
             this.appendChild(newMessage);
+
+            this.llmInteraction(xml);
         });
+    }
+
+    // send user msg to llm
+    async llmInteraction(prompt) {
+        const response = await fetch('http://localhost:11434/api/generate', {
+            method: 'POST',
+            body: JSON.stringify({
+                model: "ollama",
+                prompt: prompt,
+                stream: false
+            })
+        });
+
+        const data = await response.json();
+        const newMessage = document.createElement('chat-message');
+        newMessage.setAttribute("is-user", "false");
+        newMessage.setAttribute("sender", "AI Tutor");
+        newMessage.innerHTML = data.response;
+        this.appendChild(newMessage);
+
+        // Auto-scroll to bottom when a new message is added
+        this.chat.scrollTop = this.chat.scrollHeight;
     }
 }
 
