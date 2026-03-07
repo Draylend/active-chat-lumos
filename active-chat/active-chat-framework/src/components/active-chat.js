@@ -158,8 +158,6 @@ class ActiveChat extends HTMLElement {
             newMessage.setAttribute("sender", "Student");
             newMessage.innerHTML = xml;
             this.appendChild(newMessage);
-
-            this.llmInteraction(xml);
         });
 
         // Replay Integrity -- add refresh listener
@@ -192,11 +190,8 @@ class ActiveChat extends HTMLElement {
         });
 
         const data = await response.json();
-        const newMessage = document.createElement('chat-message');
-        newMessage.setAttribute("is-user", "false");
-        newMessage.setAttribute("sender", "AI Tutor");
-        newMessage.innerHTML = data.response;
-        this.appendChild(newMessage);
+        console.log(data.response);
+        parse(data.response);
 
         // Auto-scroll to bottom when a new message is added
         this.chat.scrollTop = this.chat.scrollHeight;
