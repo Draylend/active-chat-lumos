@@ -23,6 +23,15 @@ class ChatActivity extends HTMLElement {
             activityIdCounter++;
         }
     }
+
+    // Parent accept method -- this will call children's implementation of accept
+    accept(interactionElement) {
+        [...this.children].forEach(child => {
+        if (typeof child.accept === 'function') {
+            child.accept(interactionElement);
+        }
+        });
+    }
 }
 
 customElements.define("chat-activity", ChatActivity);

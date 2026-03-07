@@ -1,6 +1,7 @@
 // Class structure for active-chat
 
 import { ChatMessage } from "./chat-message.js";
+import { parse } from "../parser/parsing_code.js";
 class ActiveChat extends HTMLElement {
     constructor() {
         super();
@@ -18,6 +19,41 @@ class ActiveChat extends HTMLElement {
         // Children
         const slot = document.createElement('slot');
         chat.appendChild(slot);
+
+        // Event listener for added messages; calls parser to look at
+        // chat-activity and chat-interaction tags
+        slot.addEventListener('slotchange', () => {
+            // Retrieve all elements (children) added to slot (should be chat-message components)
+            const elements = slot.assignedElements({ flatten: true });
+            // Check if there are any children (messages) first
+            if (elements.length === 0) return;
+            
+            // Grab most recently added chat-message
+            const recentElement = elements[elements.length - 1];
+            //const markdownString = recentElement.innerText;
+
+            //if(recentElement.getAttribute("is-user") === "false") {
+                // TEMPORARY (DELETE LATER) --- testing purposes (simulate LLM markdown reply)
+                let markdownString = null;
+                if(recentElement.innerText === "test") {
+                    markdownString = `<chat-activity>
+    <multiple-choice-question>
+    <question-header answer="10">What is 5 + 5?</question-header>
+    <option-choice>5</option-choice>
+    <option-choice>10</option-choice>
+    <option-choice>15</option-choice>
+    </multiple-choice-question>
+    </chat-activity>`;
+                } else if(recentElement.innerText === "hi") {
+                    markdownString = `Hello!`;
+                } else {
+                    markdownString = recentElement.innerHTML;
+                }
+
+                // Parse this chat-message component
+                parse(markdownString);
+            //}
+        });
 
         // Text bar
         const textBar = document.createElement('textarea');
@@ -106,6 +142,9 @@ class ActiveChat extends HTMLElement {
 
                 // Reset value
                 this.textBar.value = "";
+
+                // trigger llm interaction
+                this.llmInteraction(message);
             }
         });
 
@@ -120,6 +159,42 @@ class ActiveChat extends HTMLElement {
             newMessage.innerHTML = xml;
             this.appendChild(newMessage);
         });
+
+        // Replay Integrity -- add refresh listener
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("Page loaded!");
+
+            // Grab Chat Log (wherever it's stored)
+            const log = false;  // temp
+
+            // Check if log exists; if not, don't replay events (there are none)
+            if(log) {
+                const chatMessages = null;
+
+                chatMessages.forEach(message => {
+                    parse(message);
+                });
+            }
+        });
+    }
+
+    // send user msg to llm
+    async llmInteraction(prompt) {
+        const response = await fetch('http://localhost:11434/api/generate', {
+            method: 'POST',
+            body: JSON.stringify({
+                model: "ollama",
+                prompt: prompt,
+                stream: false
+            })
+        });
+
+        const data = await response.json();
+        console.log(data.response);
+        parse(data.response);
+
+        // Auto-scroll to bottom when a new message is added
+        this.chat.scrollTop = this.chat.scrollHeight;
     }
 }
 

@@ -60,43 +60,25 @@ export class ChatMessage extends HTMLElement {
     }
 
     // Shadow DOM rendering
-    async addActivity() {
-        // look for <chat-activity> wrapper
-        const activityWrapper = this.querySelector('chat-activity');
-
-        // check if message has an activity
-        if (!activityWrapper) return;
-
+    async addActivity(activityNode) {
         // check if there is actually an activity to render
-        const activity = activityWrapper.firstElementChild;
+        const activity = activityNode.firstElementChild;
         if (!activity) return;
 
+        // Get activity tag/name
         const tagName = activity.tagName.toLowerCase();
-        const activityId = activityWrapper.getAttribute('activity-id');
 
         try 
         {
             // get component with registry_client
             await this.registryClient.fetchWebComponents(tagName);
 
-            // create
-            const activityElement = document.createElement(tagName);
-            activityElement.setAttribute('activity-id', activityId);
-
-            activityElement.innerHTML = activity.innerHTML;
-
-            // append
-            this.message.appendChild(activityElement);
+            this.appendChild(activityNode);
         }
         catch
         {
             console.error(`Shadow DOM render failed to load <${tagName}/> component:`);
         }
-    }
-
-    connectedCallback() {
-        // allow time for parsing
-        setTimeout(() => { this.addActivity(); }, 0);
     }
 
     attributeChangedCallback(name, oldValue, newValue) {

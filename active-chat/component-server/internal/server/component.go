@@ -74,7 +74,7 @@ func ComponentHandler(componentDir string) http.Handler {
 	
 				fsPath = filepath.Join(componentDir, componentName, jsFile)
 		}
-	
+
 
 		/*path traversal*/
 		cleanBase := filepath.Clean(componentDir)
