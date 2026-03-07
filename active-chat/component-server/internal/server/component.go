@@ -1,6 +1,5 @@
 package server
 
-/*save files from componentDir*/
 /* 1. translate URL 2. file path 3. serve files*/
 import (
 	"log"
@@ -9,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"mime" /*milestone 1 feedback change */
+	"fmt" /*m4*/
 )
 
 func ComponentHandler(componentDir string) http.Handler {
@@ -17,8 +17,7 @@ func ComponentHandler(componentDir string) http.Handler {
 		path := strings.TrimPrefix(r.URL.Path, "/components/")
 		path = strings.TrimPrefix(path, "/")
 
-		/* Get /components/mcq --> <componentDir>/mcq/index.js*/
-		/* Get /components/mcq/static/header.svg --> <componentDir>/mcq/static/header.svg*/
+
 		if path == "" {
 			http.NotFound(w, r)
 			log.Printf("No component path provided")
@@ -26,62 +25,107 @@ func ComponentHandler(componentDir string) http.Handler {
 		}
 
 		parts := strings.Split(path, "/")
-		componentName := parts[0]
+		rawName := parts[0]
+		componentName := strings.TrimSuffix(rawName, ".js")
 
-		var(
-			fsPath	string
-			isMainJS	bool
-		)
+		/*m4.1: validate component name using standard library*/
+		if componentName == "" || !filepath.IsLocal(componentName) {
+			http.Error(w, "invalid component name", http.StatusBadRequest)
+			return
+		}
 
-		if len(parts) == 1 {
-			fsPath = filepath.Join(componentDir, componentName, "index.js")
-			isMainJS = true
-		} else {
-			/*only allow static*/
-			if parts[1] != "static" {
-				http.NotFound(w, r)
-				return
-			}
-			/*milestone 1&2 feedback: */
-			/* added a length check to ensure /static requests include a file path,
-			preventing malformed requests and potential slice errors*/
+		var fsPath	string
+		isEntryModule := false
+
+		/* case 1: static asset*/
+		if len(parts) >= 2 && parts[1] == "static" {
 			if len(parts) < 3 {
 				http.Error(w, "missing static asset path", http.StatusBadRequest)
 				return
 			}
 
 			rest := parts[2:]
-			fsPath = filepath.Join(append([]string{componentDir, componentName, "static"}, rest...)...)
+			staticRelPath := filepath.Join(rest...)
+			if !filepath.IsLocal(staticRelPath) {
+				http.Error(w, "invalid path", http.StatusBadRequest)
+				log.Printf("Invalid static path attempt: %q", r.URL.Path)
+				return
+			}
+
+			fsPath = filepath.Join(componentDir, componentName, "static", staticRelPath)
+
+			} else {
+				/* case 2: js file*/
+				if len(parts) != 2 {
+					http.NotFound(w, r)
+					return
+				}
+	
+				jsFile := parts[1]
+				if !filepath.IsLocal(jsFile) || filepath.Ext(jsFile) != ".js" {
+					http.Error(w, "invalid path", http.StatusBadRequest)
+					log.Printf("Invalid JS path attempt: %q", r.URL.Path)
+					return
+				}
+	
+				if jsFile == "index.js" {
+					isEntryModule = true
+				}
+	
+				fsPath = filepath.Join(componentDir, componentName, jsFile)
 		}
+	
 
 		/*path traversal*/
 		cleanBase := filepath.Clean(componentDir)
 		cleanPath := filepath.Clean(fsPath)
 		if !strings.HasPrefix(cleanPath, cleanBase+string(os.PathSeparator)) && cleanPath != cleanBase {
 			http.Error(w, "invalid path", http.StatusBadRequest)
-			log.Printf("Invalid path")
+			log.Printf("Invalid path attempt: %q", r.URL.Path)
 			return
 		}
 
-		/*404 if not found*/
+		/*m4: return a fallback, 404 if not found*/
 		if _, err := os.Stat(cleanPath); err != nil {
+			if isEntryModule {
+				serveInvalidActivityFallback(w, componentName)
+				log.Printf("Fallback served for missing component: %s", componentName)
+				return
+			}
+
 			http.NotFound(w, r)
-			log.Printf("Failed to serve component. Component not found")
+			log.Printf("File not found: %s", cleanPath)
 			return
 		}
 
-		/* milestone 1 feeback change here: */
-		/* make sure the correct MIME for JS module*/
-		if isMainJS {
-			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-		} else {
-			/* ensure Go knows common types: svg, wasm,..*/
-			if ctype := mime.TypeByExtension(filepath.Ext(cleanPath)); ctype != "" {
-				w.Header().Set("Content-Type", ctype)
-			}
+		if ctype := mime.TypeByExtension(filepath.Ext(cleanPath)); ctype != "" {
+			w.Header().Set("Content-Type", ctype)
 		}
 
 		http.ServeFile(w, r, cleanPath)
-		log.Printf("Served %s component\n", componentName)
+		log.Printf("Served %s\n", cleanPath)
 	})
+}
+
+
+/*m4: fallback module, can render visible message*/
+func serveInvalidActivityFallback(w http.ResponseWriter, tagName string) {
+	w.Header().Set("Content-Type", "application/javascript")
+	w.WriteHeader(http.StatusOK)
+
+	js := fmt.Sprintf(`
+console.warn("Component '%s' not found.");
+
+class InvalidActivity extends HTMLElement {
+  connectedCallback() {
+    this.innerHTML = "<div style='padding:10px;border:1px solid red;border-radius:6px;'>Invalid activity: %s</div>";
+  }
+}
+
+customElements.define("%s", InvalidActivity);
+
+export {};
+`, tagName, tagName, tagName)
+
+	w.Write([]byte(js))
 }
