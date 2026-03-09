@@ -118,7 +118,7 @@ console.warn("Component '%s' not found.");
 
 class InvalidActivity extends HTMLElement {
   connectedCallback() {
-    this.innerHTML = "<div style='padding:10px;border:1px solid red;border-radius:6px;'>Invalid activity: %s</div>";
+    this.innerHTML = "<div style='padding:10px;border:1px solid red;border-radius:6px;'>Component Error: Sorry, I could not render the requested %s activity.</div>";
   }
 }
 

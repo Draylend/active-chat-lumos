@@ -77,6 +77,7 @@ export class ChatMessage extends HTMLElement {
         }
         catch
         {
+            this.innerHTML = `<div style='padding:10px;border:1px solid red;border-radius:6px;'>Network Error: Sorry, I could not render the requested ${tagName} activity.</div>`;
             console.error(`Shadow DOM render failed to load <${tagName}/> component:`);
         }
     }
