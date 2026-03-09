@@ -7,7 +7,14 @@
 		<meta charset = "UTF-8"/>
 		<title>Active Chat Test</title>
         <link rel="stylesheet" href="./active-chat-framework/styles/global.css">
-        <script type="module" src="./active-chat-framework/src/index.js"></script>
+        <script type="module" src="./active-chat-framework/src/index.js" ></script>
+        <script type="importmap">
+            {
+                "imports": {
+                "@google/genai": "https://esm.run/@google/genai"
+                }
+            }
+        </script>
 	</head>
     <body>
         <active-chat>
