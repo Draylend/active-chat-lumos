@@ -1,21 +1,28 @@
-//import { marked } from "../../../node_modules/marked/lib/marked.esm.js"; // Import markdown parser
+import { marked } from "../../../node_modules/marked/lib/marked.esm.js"; // Import markdown parser
 
 // Recursion Code with DOM Parser
 export function parse(mdMessage)
 {
     console.log("In parser");
 
-    // Parse from Markdown --> XML
-    //const xmlMessage = marked.parse(mdMessage);
-    
-    // Create DOM Parser Object
-    const parser = new DOMParser();
-    
-    // Parse XML string to create DOM Tree
-    const parseInfo = parser.parseFromString(mdMessage, "text/html");
+    // convert marked to html
+    const html = marked.parse(mdMessage);
 
+    //parse html to DOM and Create DOM Parser Object
+    const parser = new DOMParser();
+    const dom = parser.parseFromString(html, "text/html");
+
+    //convert html to xml
+    const xmlSerializer = new XMLSerializer();
+    const xmlString = xmlSerializer.serializeToString(dom.body);
+    console.log("Serialized XML:", xmlString);
+    walk(dom.body);
+
+    //const xmlMessage = marked.parse(mdMessage);
+    // Parse XML string to create DOM Tree
+    //const parseInfo = parser.parseFromString(mdMessage, "text/html");
     // Traverse DOM Tree to find unknown tags
-    walk(parseInfo.body);
+    //walk(parseInfo.body);
 }
 
 // Recursively walk/traverse through children
