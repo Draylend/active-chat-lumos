@@ -26,11 +26,7 @@ class ChatActivity extends HTMLElement {
 
     // Parent accept method -- this will call children's implementation of accept
     accept(interactionElement) {
-        [...this.children].forEach(child => {
-        if (typeof child.accept === 'function') {
-            child.accept(interactionElement);
-        }
-        });
+        this.children[0].accept(interactionElement);
     }
 }
 
