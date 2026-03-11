@@ -4,11 +4,17 @@ import { GEMINI_API_KEY } from "../apikey.js"; //need to import your own API key
 import { GoogleGenAI } from "@google/genai";
 const ai = new GoogleGenAI({apiKey: GEMINI_API_KEY});
 
+/**
+ * Class for the LLM that holds an async function for conversing with the LLM
+ */
 class LLM
 {
     constructor() {}
 
-    // send user msg to llm
+    /**
+     * Accepts text as input for the prompt param and outputs gemini's response as text
+     * @param {*} prompt
+     */
     async llmInteraction(prompt) {
         const response = await ai.models.generateContent({
             model: "gemini-3-flash-preview",
