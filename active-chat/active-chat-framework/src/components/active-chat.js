@@ -2,9 +2,13 @@
 
 import { ChatMessage } from "./chat-message.js";
 import { parse } from "../parser/parsing_code.js";
+import { LLM } from "../../../llm/gemini.js"
+
 class ActiveChat extends HTMLElement {
     constructor() {
         super();
+
+        this.llm = new LLM();
         const shadow = this.attachShadow({ mode: "open" });
 
         // Styling the chat window
@@ -126,6 +130,8 @@ class ActiveChat extends HTMLElement {
 
                 // Reset value
                 this.textBar.value = "";
+
+                this.llm.llmInteraction(message);
             }
         });
 

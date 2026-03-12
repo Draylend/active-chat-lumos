@@ -1,6 +1,8 @@
 // Chat Activity Component (Holds interactive embedded activities)
 
-// Global variable to create activity-ids (made starting id 100)
+/**
+ * Global variable to create activity-ids (made starting id 100)
+ */
 let activityIdCounter = 100;
 
 class ChatActivity extends HTMLElement {
